@@ -58,11 +58,14 @@ if [ ! -c /dev/net/tun ]; then
 fi
 
 echo 'Configuring networking rules...'
-if ! grep -q 'net.ipv4.ip_forward=1' /etc/sysctl.conf; then
-  echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf;
-  echo 'IP forwarding configuration now applied:'
-else
-  echo 'IP forwarding configuration already applied:'
+if [ "$(sysctl -n 'net.ipv4.ip_forward')" != "1" ]; then
+  echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf
+fi
+if [ "$(sysctl -n 'net.ipv4.conf.all.send_redirects')" != "0" ]; then
+  echo 'net.ipv4.conf.all.send_redirects=0' >> /etc/sysctl.conf
+fi
+if [ "$(sysctl -n 'net.ipv4.conf.default.send_redirects')" != "0" ]; then
+  echo 'net.ipv4.conf.default.send_redirects=0' >> /etc/sysctl.conf
 fi
 sysctl -p /etc/sysctl.conf
 
