@@ -7,7 +7,7 @@ set -e
 start_time=$(date +%s)
 
 printf "\033[1;34mBuilding OpenVPN Server Image.\033[0m\n"
-docker build --force-rm=true -t d3vilh/openvpn-server .
+docker build --force-rm=true -t local/openvpn-server .
 
 # Benchmarking the end time record
 end_time=$(date +%s)

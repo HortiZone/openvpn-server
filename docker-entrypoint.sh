@@ -1,5 +1,4 @@
 #!/bin/bash
-#VERSION 0.2.3 by @d3vilh@github.com aka Mr. Philipp
 set -e
 
 #Variables
@@ -45,7 +44,6 @@ if [[ ! -f $OPENVPN_DIR/pki/ca.crt ]]; then
     # Copy to mounted volume
     cp -r $EASY_RSA/pki/. $OPENVPN_DIR/pki
 else
-
     echo 'PKI already set up.'
 fi
 
@@ -61,24 +59,12 @@ fi
 
 echo 'Configuring networking rules...'
 if ! grep -q 'net.ipv4.ip_forward=1' /etc/sysctl.conf; then
-  echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf; 
+  echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf;
   echo 'IP forwarding configuration now applied:'
 else
   echo 'IP forwarding configuration already applied:'
 fi
 sysctl -p /etc/sysctl.conf
-
-echo 'Configuring iptables...'
-echo 'NAT for OpenVPN clients'
-iptables -t nat -A POSTROUTING -s $TRUST_SUB -o eth0 -j MASQUERADE
-iptables -t nat -A POSTROUTING -s $GUEST_SUB -o eth0 -j MASQUERADE
-
-echo 'Blocking ICMP for external clients'
-iptables -A FORWARD -p icmp -j DROP --icmp-type echo-request -s $GUEST_SUB 
-iptables -A FORWARD -p icmp -j DROP --icmp-type echo-reply -s $GUEST_SUB 
-
-echo 'Blocking internal home subnet to access from external openvpn clients (Internet still available)'
-iptables -A FORWARD -s $GUEST_SUB -d $HOME_SUB -j DROP
 
 if [[ ! -s fw-rules.sh ]]; then
     echo "No additional firewall rules to apply."
@@ -88,10 +74,5 @@ else
     echo 'Additional firewall rules applied.'
 fi
 
-echo 'IPT MASQ Chains:'
-iptables -t nat -L | grep MASQ
-echo 'IPT FWD Chains:'
-iptables -v -x -n -L | grep DROP 
-
-echo 'Start openvpn process...'
+echo 'Starting openvpn process...'
 /usr/sbin/openvpn --cd $OPENVPN_DIR --script-security 2 --config $OPENVPN_DIR/server.conf

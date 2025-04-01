@@ -1,2 +1,6 @@
 .DS_Store
 bin/oath-orig.sh
+.idea
+.env
+.provisioned
+caddy/data/*

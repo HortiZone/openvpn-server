@@ -6,16 +6,12 @@ services:
        container_name: openvpn
        # If you want to build your own image with docker-compose, uncomment the next line, comment the "image:" line and run "docker-compose build" following by "docker-compose up -d"
        # build: .
-       image: d3vilh/openvpn-server:latest
+       image: local/openvpn-server:latest
        privileged: true
-       ports: 
+       ports:
           - "1194:1194/udp"   # openvpn UDP port
          # - "1194:1194/tcp"   # openvpn TCP port
          # - "2080:2080/tcp"  # management port. uncomment if you would like to share it with the host
-       environment:
-           TRUST_SUB: "10.0.70.0/24"
-           GUEST_SUB: "10.0.71.0/24"  
-           HOME_SUB: "192.168.88.0/24"
        volumes:
            - ./pki:/etc/openvpn/pki
            - ./clients:/etc/openvpn/clients
@@ -27,5 +23,5 @@ services:
            - ./server.conf:/etc/openvpn/server.conf
        cap_add:
            - NET_ADMIN
-       restart: always
+       restart: unless-stopped
 
